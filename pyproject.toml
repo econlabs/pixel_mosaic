@@ -50,7 +50,7 @@ all = ["pixel-mosaic[dev,demo]"]
 pixel-mosaic = "pixel_mosaic.cli:app"
 
 [project.urls]
-Repository = "https://github.com/YOURNAME/pixel-mosaic"
+Repository = "https://github.com/econlabs/pixel_mosaic"
 
 [tool.setuptools.packages.find]
 include = ["pixel_mosaic*"]
