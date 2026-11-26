@@ -44,10 +44,7 @@ def _setup_logging(verbose: bool) -> None:
 def _collect_images(folder: Path, extensions: frozenset[str]) -> list[Path]:
     if not folder.exists():
         return []
-    return sorted(
-        f for f in folder.iterdir()
-        if f.is_file() and f.suffix.lower() in extensions
-    )
+    return sorted(f for f in folder.iterdir() if f.is_file() and f.suffix.lower() in extensions)
 
 
 def _quality_metric(target: np.ndarray, mosaic: np.ndarray) -> float:
@@ -62,53 +59,84 @@ _DEFAULTS = MosaicConfig()
 
 # -- batch command -----------------------------------------------------
 
+
 @app.command()
 def batch(
     input_dir: Path = typer.Option(
-        _DEFAULTS.input_dir, "--input", "-i", help="Folder with source images",
+        _DEFAULTS.input_dir,
+        "--input",
+        "-i",
+        help="Folder with source images",
     ),
     output_dir: Path = typer.Option(
-        _DEFAULTS.output_dir, "--output", "-o", help="Results folder",
+        _DEFAULTS.output_dir,
+        "--output",
+        "-o",
+        help="Results folder",
     ),
     max_side: int = typer.Option(
-        _DEFAULTS.max_side, "--max-side", "-m",
+        _DEFAULTS.max_side,
+        "--max-side",
+        "-m",
         help="Longest side of downscaled image (aspect ratio preserved)",
     ),
     seed: int | None = typer.Option(
-        _DEFAULTS.seed, "--seed", "-s", help="Random seed (None = random)",
+        _DEFAULTS.seed,
+        "--seed",
+        "-s",
+        help="Random seed (None = random)",
     ),
     solver: str = typer.Option(
-        _DEFAULTS.solver, "--solver", help="'hungarian' or 'annealing'",
+        _DEFAULTS.solver,
+        "--solver",
+        help="'hungarian' or 'annealing'",
     ),
     color_space: str = typer.Option(
-        _DEFAULTS.color_space, "--color-space", help="'lab' or 'rgb'",
+        _DEFAULTS.color_space,
+        "--color-space",
+        help="'lab' or 'rgb'",
     ),
     palette_mode: str = typer.Option(
-        _DEFAULTS.palette_mode, "--palette", "-p",
+        _DEFAULTS.palette_mode,
+        "--palette",
+        "-p",
         help="Palette: preset name, anchor palette name, or 'anchors'",
     ),
     anchors: str | None = typer.Option(
-        None, "--anchors",
+        None,
+        "--anchors",
         help="Comma-separated hex colours, e.g. '#FF7F11,#262626'",
     ),
     spread: float = typer.Option(
-        12.0, "--spread",
+        12.0,
+        "--spread",
         help="Anchor spread in CIELAB units (~5=tight, ~25=wide)",
     ),
     dither: bool = typer.Option(
-        _DEFAULTS.dither, "--dither/--no-dither", help="Floyd-Steinberg dithering",
+        _DEFAULTS.dither,
+        "--dither/--no-dither",
+        help="Floyd-Steinberg dithering",
     ),
     upscale: int = typer.Option(
-        _DEFAULTS.pixel_upscale, "--upscale", "-u", help="Pixel upscale factor",
+        _DEFAULTS.pixel_upscale,
+        "--upscale",
+        "-u",
+        help="Pixel upscale factor",
     ),
     palette_source: Path | None = typer.Option(
-        None, "--palette-from", help="Extract palette from image",
+        None,
+        "--palette-from",
+        help="Extract palette from image",
     ),
     sa_iterations: int = typer.Option(
-        _DEFAULTS.sa_iterations, "--sa-iter", help="SA iterations",
+        _DEFAULTS.sa_iterations,
+        "--sa-iter",
+        help="SA iterations",
     ),
     sa_gif: bool = typer.Option(
-        True, "--sa-gif/--no-sa-gif", help="Save SA convergence GIF",
+        True,
+        "--sa-gif/--no-sa-gif",
+        help="Save SA convergence GIF",
     ),
     verbose: bool = typer.Option(False, "--verbose", "-v", help="Debug logging"),
 ) -> None:
@@ -139,13 +167,15 @@ def batch(
         console.print("Place .jpg / .png / ... files there and re-run.\n")
         raise typer.Exit(0)
 
-    console.print(Panel.fit(
-        f"[bold]PIXEL MOSAIC GENERATOR[/bold]\n"
-        f"Max side: {cfg.max_side}  |  Palette: {cfg.palette_mode}\n"
-        f"Solver: {cfg.solver}  |  Colour space: {cfg.color_space}\n"
-        f"Dithering: {cfg.dither}  |  Images: {len(images)}",
-        border_style="cyan",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold]PIXEL MOSAIC GENERATOR[/bold]\n"
+            f"Max side: {cfg.max_side}  |  Palette: {cfg.palette_mode}\n"
+            f"Solver: {cfg.solver}  |  Colour space: {cfg.color_space}\n"
+            f"Dithering: {cfg.dither}  |  Images: {len(images)}",
+            border_style="cyan",
+        )
+    )
 
     # Process each image (palette generated per image since dimensions vary)
     for idx, img_path in enumerate(images, 1):
@@ -162,23 +192,27 @@ def batch(
 
         if cfg.save_target:
             save_upscaled(
-                target, output_dir / f"{stem}_target.{cfg.output_format}", upscale,
+                target,
+                output_dir / f"{stem}_target.{cfg.output_format}",
+                upscale,
             )
 
         # Generate palette matching this image's pixel count
         if palette_source and palette_source.exists():
             palette = extract_palette_from_image(
-                palette_source, num_pixels, seed=seed,
+                palette_source,
+                num_pixels,
+                seed=seed,
             )
             logger.info("Palette extracted from %s", palette_source)
         else:
-            anchor_list = (
-                [a.strip() for a in anchors.split(",")]
-                if anchors else None
-            )
+            anchor_list = [a.strip() for a in anchors.split(",")] if anchors else None
             palette = generate_palette(
-                num_pixels, mode=palette_mode, seed=seed,
-                anchors=anchor_list, spread=spread,
+                num_pixels,
+                mode=palette_mode,
+                seed=seed,
+                anchors=anchor_list,
+                spread=spread,
             )
             logger.info("Palette: %s (%d colours, seed=%s)", palette_mode, num_pixels, seed)
 
@@ -190,7 +224,8 @@ def batch(
         if cfg.solver == "annealing":
             gif_path = output_dir / f"{stem}_annealing.gif" if sa_gif else None
             mosaic_flat = solve_annealing(
-                palette, target_flat,
+                palette,
+                target_flat,
                 color_space=cfg.color_space,
                 iterations=cfg.sa_iterations,
                 gif_path=gif_path,
@@ -200,7 +235,9 @@ def batch(
             )
         else:
             mosaic_flat = solve_hungarian(
-                palette, target_flat, color_space=cfg.color_space,
+                palette,
+                target_flat,
+                color_space=cfg.color_space,
             )
 
         mosaic = mosaic_flat.reshape(h, w, 3)
@@ -218,7 +255,12 @@ def batch(
         if cfg.save_comparison:
             comp_path = output_dir / f"{stem}_comparison.{cfg.output_format}"
             make_comparison_grid(
-                img_path, target, mosaic, palette, comp_path, upscale,
+                img_path,
+                target,
+                mosaic,
+                palette,
+                comp_path,
+                upscale,
             )
 
         err = _quality_metric(target, mosaic)
@@ -230,13 +272,16 @@ def batch(
             f"  time={elapsed:.1f}s[/dim]"
         )
 
-    console.print(Panel.fit(
-        f"[bold green]ALL DONE[/bold green] - results in [bold]{output_dir}/[/bold]",
-        border_style="green",
-    ))
+    console.print(
+        Panel.fit(
+            f"[bold green]ALL DONE[/bold green] - results in [bold]{output_dir}/[/bold]",
+            border_style="green",
+        )
+    )
 
 
 # -- single-image command ----------------------------------------------
+
 
 @app.command()
 def single(
@@ -263,18 +308,19 @@ def single(
     num_pixels = h * w
     target_flat = img.reshape(-1, 3)
 
-    anchor_list = (
-        [a.strip() for a in anchors.split(",")]
-        if anchors else None
-    )
+    anchor_list = [a.strip() for a in anchors.split(",")] if anchors else None
     palette = generate_palette(
-        num_pixels, mode=palette_mode, seed=seed,
-        anchors=anchor_list, spread=spread,
+        num_pixels,
+        mode=palette_mode,
+        seed=seed,
+        anchors=anchor_list,
+        spread=spread,
     )
 
     if solver == "annealing":
         mosaic_flat = solve_annealing(
-            palette, target_flat,
+            palette,
+            target_flat,
             color_space=color_space,
             img_width=w,
             img_height=h,
@@ -292,8 +338,7 @@ def single(
 
     err = _quality_metric(img, mosaic)
     console.print(
-        f"[green]✓[/green] Saved to {output}  "
-        f"[dim]{w}x{h} = {num_pixels} px  error={err:.1f}[/dim]"
+        f"[green]✓[/green] Saved to {output}  [dim]{w}x{h} = {num_pixels} px  error={err:.1f}[/dim]"
     )
 
 

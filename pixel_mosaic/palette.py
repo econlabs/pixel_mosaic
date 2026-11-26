@@ -129,7 +129,8 @@ def generate_palette(
 
 # Backward compat
 def generate_random_palette(
-    num_colors: int, seed: int | None = None,
+    num_colors: int,
+    seed: int | None = None,
 ) -> np.ndarray:
     """Generate *num_colors* uniformly random RGB values."""
     return generate_palette(num_colors, mode="random", seed=seed)
@@ -242,15 +243,18 @@ def _forest(n: int, rng: np.random.Generator) -> np.ndarray:
     """Deep greens, mossy tones, bark browns, leaf yellows."""
     choice = rng.integers(0, 3, size=n)
     r = np.where(
-        choice == 0, rng.integers(20, 80, size=n),
+        choice == 0,
+        rng.integers(20, 80, size=n),
         np.where(choice == 1, rng.integers(90, 160, size=n), rng.integers(140, 210, size=n)),
     )
     g = np.where(
-        choice == 0, rng.integers(80, 180, size=n),
+        choice == 0,
+        rng.integers(80, 180, size=n),
         np.where(choice == 1, rng.integers(50, 100, size=n), rng.integers(150, 220, size=n)),
     )
     b = np.where(
-        choice == 0, rng.integers(10, 70, size=n),
+        choice == 0,
+        rng.integers(10, 70, size=n),
         np.where(choice == 1, rng.integers(20, 60, size=n), rng.integers(30, 80, size=n)),
     )
     return np.stack([r, g, b], axis=1).astype(np.uint8)
@@ -296,12 +300,21 @@ def _vintage(n: int, rng: np.random.Generator) -> np.ndarray:
 def _candy(n: int, rng: np.random.Generator) -> np.ndarray:
     """Bright pinks, purples, magentas, baby blues."""
     choice = rng.integers(0, 3, size=n)
-    r = np.where(choice == 0, rng.integers(200, 256, size=n),
-         np.where(choice == 1, rng.integers(150, 220, size=n), rng.integers(100, 180, size=n)))
-    g = np.where(choice == 0, rng.integers(50, 150, size=n),
-         np.where(choice == 1, rng.integers(80, 160, size=n), rng.integers(150, 230, size=n)))
-    b = np.where(choice == 0, rng.integers(150, 240, size=n),
-         np.where(choice == 1, rng.integers(200, 256, size=n), rng.integers(200, 256, size=n)))
+    r = np.where(
+        choice == 0,
+        rng.integers(200, 256, size=n),
+        np.where(choice == 1, rng.integers(150, 220, size=n), rng.integers(100, 180, size=n)),
+    )
+    g = np.where(
+        choice == 0,
+        rng.integers(50, 150, size=n),
+        np.where(choice == 1, rng.integers(80, 160, size=n), rng.integers(150, 230, size=n)),
+    )
+    b = np.where(
+        choice == 0,
+        rng.integers(150, 240, size=n),
+        np.where(choice == 1, rng.integers(200, 256, size=n), rng.integers(200, 256, size=n)),
+    )
     return np.stack([r, g, b], axis=1).astype(np.uint8)
 
 
@@ -328,36 +341,74 @@ def _ice(n: int, rng: np.random.Generator) -> np.ndarray:
 def _autumn(n: int, rng: np.random.Generator) -> np.ndarray:
     """Deep reds, burnt oranges, golden yellows, dark browns."""
     choice = rng.integers(0, 4, size=n)
-    r = np.where(choice == 0, rng.integers(140, 200, size=n),   # red
-         np.where(choice == 1, rng.integers(200, 245, size=n),   # orange
-         np.where(choice == 2, rng.integers(200, 240, size=n),   # yellow
-                  rng.integers(50, 100, size=n))))                # brown
-    g = np.where(choice == 0, rng.integers(20, 60, size=n),
-         np.where(choice == 1, rng.integers(100, 160, size=n),
-         np.where(choice == 2, rng.integers(170, 210, size=n),
-                  rng.integers(30, 70, size=n))))
-    b = np.where(choice == 0, rng.integers(10, 40, size=n),
-         np.where(choice == 1, rng.integers(10, 50, size=n),
-         np.where(choice == 2, rng.integers(20, 60, size=n),
-                  rng.integers(10, 40, size=n))))
+    r = np.where(
+        choice == 0,
+        rng.integers(140, 200, size=n),  # red
+        np.where(
+            choice == 1,
+            rng.integers(200, 245, size=n),  # orange
+            np.where(
+                choice == 2,
+                rng.integers(200, 240, size=n),  # yellow
+                rng.integers(50, 100, size=n),
+            ),
+        ),
+    )  # brown
+    g = np.where(
+        choice == 0,
+        rng.integers(20, 60, size=n),
+        np.where(
+            choice == 1,
+            rng.integers(100, 160, size=n),
+            np.where(choice == 2, rng.integers(170, 210, size=n), rng.integers(30, 70, size=n)),
+        ),
+    )
+    b = np.where(
+        choice == 0,
+        rng.integers(10, 40, size=n),
+        np.where(
+            choice == 1,
+            rng.integers(10, 50, size=n),
+            np.where(choice == 2, rng.integers(20, 60, size=n), rng.integers(10, 40, size=n)),
+        ),
+    )
     return np.stack([r, g, b], axis=1).astype(np.uint8)
 
 
 def _cyberpunk(n: int, rng: np.random.Generator) -> np.ndarray:
     """Electric pinks, neon cyans, deep purples, black."""
     choice = rng.integers(0, 4, size=n)
-    r = np.where(choice == 0, rng.integers(200, 256, size=n),   # pink
-         np.where(choice == 1, rng.integers(0, 40, size=n),      # cyan
-         np.where(choice == 2, rng.integers(80, 140, size=n),    # purple
-                  rng.integers(0, 30, size=n))))                  # black
-    g = np.where(choice == 0, rng.integers(0, 60, size=n),
-         np.where(choice == 1, rng.integers(200, 256, size=n),
-         np.where(choice == 2, rng.integers(0, 50, size=n),
-                  rng.integers(0, 20, size=n))))
-    b = np.where(choice == 0, rng.integers(100, 180, size=n),
-         np.where(choice == 1, rng.integers(200, 256, size=n),
-         np.where(choice == 2, rng.integers(160, 230, size=n),
-                  rng.integers(0, 30, size=n))))
+    r = np.where(
+        choice == 0,
+        rng.integers(200, 256, size=n),  # pink
+        np.where(
+            choice == 1,
+            rng.integers(0, 40, size=n),  # cyan
+            np.where(
+                choice == 2,
+                rng.integers(80, 140, size=n),  # purple
+                rng.integers(0, 30, size=n),
+            ),
+        ),
+    )  # black
+    g = np.where(
+        choice == 0,
+        rng.integers(0, 60, size=n),
+        np.where(
+            choice == 1,
+            rng.integers(200, 256, size=n),
+            np.where(choice == 2, rng.integers(0, 50, size=n), rng.integers(0, 20, size=n)),
+        ),
+    )
+    b = np.where(
+        choice == 0,
+        rng.integers(100, 180, size=n),
+        np.where(
+            choice == 1,
+            rng.integers(200, 256, size=n),
+            np.where(choice == 2, rng.integers(160, 230, size=n), rng.integers(0, 30, size=n)),
+        ),
+    )
     return np.stack([r, g, b], axis=1).astype(np.uint8)
 
 

@@ -72,15 +72,11 @@ def make_comparison_grid(
     label_height = 36
 
     # Prepare panels
-    original = (
-        Image.open(original_path)
-        .convert("RGB")
-        .resize((panel_w, panel_h), Image.LANCZOS)
-    )
+    original = Image.open(original_path).convert("RGB").resize((panel_w, panel_h), Image.LANCZOS)
     target_img = Image.fromarray(target).resize((panel_w, panel_h), Image.NEAREST)
-    palette_img = Image.fromarray(
-        palette.reshape(th, tw, 3)
-    ).resize((panel_w, panel_h), Image.NEAREST)
+    palette_img = Image.fromarray(palette.reshape(th, tw, 3)).resize(
+        (panel_w, panel_h), Image.NEAREST
+    )
     mosaic_img = Image.fromarray(mosaic).resize((panel_w, panel_h), Image.NEAREST)
 
     panels = [original, target_img, palette_img, mosaic_img]
@@ -100,7 +96,8 @@ def make_comparison_grid(
 
     try:
         font = ImageFont.truetype(
-            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf", 18,
+            "/usr/share/fonts/truetype/dejavu/DejaVuSans-Bold.ttf",
+            18,
         )
     except OSError:
         font = ImageFont.load_default()
