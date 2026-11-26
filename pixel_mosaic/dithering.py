@@ -56,16 +56,16 @@ def apply_dithering(
                     continue
                 neighbour = result[ny, nx]
                 fallback = tgt[min(ny, h - 1), min(nx, w - 1)]
-                neighbour_desired = (
-                    tgt[ny, nx] + error[ny, nx] if ny < h and nx < w else fallback
-                )
+                neighbour_desired = tgt[ny, nx] + error[ny, nx] if ny < h and nx < w else fallback
 
                 # Current cost
-                current = (np.sum((desired - actual) ** 2) +
-                          np.sum((neighbour_desired - neighbour) ** 2))
+                current = np.sum((desired - actual) ** 2) + np.sum(
+                    (neighbour_desired - neighbour) ** 2
+                )
                 # Cost after swap
-                swapped = (np.sum((desired - neighbour) ** 2) +
-                          np.sum((neighbour_desired - actual) ** 2))
+                swapped = np.sum((desired - neighbour) ** 2) + np.sum(
+                    (neighbour_desired - actual) ** 2
+                )
 
                 improvement = current - swapped
                 if improvement > best_improvement:

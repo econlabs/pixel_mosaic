@@ -76,14 +76,14 @@ def solve_annealing(
 
     logger.info(
         "SA start  | iterations=%s  temp=%.4f  cooling=%.6f",
-        f"{iterations:,}", initial_temp, cooling_rate,
+        f"{iterations:,}",
+        initial_temp,
+        cooling_rate,
     )
 
     # GIF frame capture
     frames: list[Image.Image] = []
-    frame_interval = (
-        max(1, iterations // gif_frames) if gif_frames > 0 else iterations + 1
-    )
+    frame_interval = max(1, iterations // gif_frames) if gif_frames > 0 else iterations + 1
 
     def _capture_frame() -> None:
         if gif_path is None:
@@ -129,7 +129,11 @@ def solve_annealing(
             pct = (it + 1) / iterations * 100
             logger.info(
                 "  SA %5.1f%%  cost=%.0f  temp=%.2e  accepted=%s  (%.0f s)",
-                pct, total_cost, temp, f"{accepted:,}", elapsed,
+                pct,
+                total_cost,
+                temp,
+                f"{accepted:,}",
+                elapsed,
             )
 
     _capture_frame()
@@ -137,7 +141,10 @@ def solve_annealing(
     elapsed = time.perf_counter() - t0
     logger.info(
         "SA done   | cost=%.0f  accepted=%s/%s  (%.1f s)",
-        total_cost, f"{accepted:,}", f"{iterations:,}", elapsed,
+        total_cost,
+        f"{accepted:,}",
+        f"{iterations:,}",
+        elapsed,
     )
 
     if gif_path is not None and frames:

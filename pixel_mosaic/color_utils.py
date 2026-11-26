@@ -40,5 +40,5 @@ def compute_cost_matrix(
     for i in range(0, n, chunk_size):
         j = min(i + chunk_size, n)
         diff = p[i:j, np.newaxis, :] - t[np.newaxis, :, :]
-        cost[i:j] = np.sqrt(np.sum(diff ** 2, axis=2))
+        cost[i:j] = np.sqrt(np.sum(diff**2, axis=2))
     return cost

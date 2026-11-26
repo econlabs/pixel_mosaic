@@ -56,6 +56,7 @@ def tmp_image(tmp_path: Path) -> Path:
 
 # -- Config ------------------------------------------------------------
 
+
 class TestConfig:
     def test_defaults(self) -> None:
         cfg = MosaicConfig()
@@ -72,6 +73,7 @@ class TestConfig:
 
 
 # -- Aspect ratio ------------------------------------------------------
+
 
 class TestAspectRatio:
     def test_landscape(self) -> None:
@@ -97,6 +99,7 @@ class TestAspectRatio:
 
 # -- Palette -----------------------------------------------------------
 
+
 class TestPalette:
     def test_shape_and_dtype(self, palette: np.ndarray) -> None:
         assert palette.shape == (N, 3)
@@ -118,8 +121,18 @@ class TestPalette:
         assert p.dtype == np.uint8
 
     def test_palette_modes(self) -> None:
-        for mode in ["random", "pastel", "grayscale", "warm", "cool",
-                      "earth", "neon", "sunset", "ocean", "forest"]:
+        for mode in [
+            "random",
+            "pastel",
+            "grayscale",
+            "warm",
+            "cool",
+            "earth",
+            "neon",
+            "sunset",
+            "ocean",
+            "forest",
+        ]:
             p = generate_palette(100, mode=mode, seed=42)
             assert p.shape == (100, 3)
             assert p.dtype == np.uint8
@@ -131,6 +144,7 @@ class TestPalette:
 
 # -- Colour utilities --------------------------------------------------
 
+
 class TestColorUtils:
     def test_lab_shape(self) -> None:
         rgb = np.array([[255, 0, 0], [0, 255, 0]], dtype=np.uint8)
@@ -138,7 +152,9 @@ class TestColorUtils:
         assert lab.shape == (2, 3)
 
     def test_cost_matrix_shape(
-        self, palette: np.ndarray, target_flat: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target_flat: np.ndarray,
     ) -> None:
         cost = compute_cost_matrix(palette, target_flat, "lab")
         assert cost.shape == (N, N)
@@ -152,9 +168,12 @@ class TestColorUtils:
 
 # -- Hungarian solver --------------------------------------------------
 
+
 class TestHungarian:
     def test_uses_all_palette_colours(
-        self, palette: np.ndarray, target_flat: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target_flat: np.ndarray,
     ) -> None:
         mosaic = solve_hungarian(palette, target_flat, "lab")
         assert mosaic.shape == palette.shape
@@ -163,7 +182,9 @@ class TestHungarian:
         assert palette_set == mosaic_set
 
     def test_no_duplicate_positions(
-        self, palette: np.ndarray, target_flat: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target_flat: np.ndarray,
     ) -> None:
         mosaic = solve_hungarian(palette, target_flat, "lab")
         palette_sorted = np.sort(palette, axis=0)
@@ -174,18 +195,23 @@ class TestHungarian:
         colors = generate_random_palette(16, seed=99)
         mosaic = solve_hungarian(colors, colors.copy(), "rgb")
         np.testing.assert_array_equal(
-            np.sort(mosaic, axis=0), np.sort(colors, axis=0),
+            np.sort(mosaic, axis=0),
+            np.sort(colors, axis=0),
         )
 
 
 # -- Simulated Annealing solver ----------------------------------------
 
+
 class TestAnnealing:
     def test_preserves_palette(
-        self, palette: np.ndarray, target_flat: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target_flat: np.ndarray,
     ) -> None:
         mosaic = solve_annealing(
-            palette, target_flat,
+            palette,
+            target_flat,
             color_space="rgb",
             iterations=5_000,
             img_width=W,
@@ -196,12 +222,15 @@ class TestAnnealing:
         assert palette_set == mosaic_set
 
     def test_improves_over_random(
-        self, palette: np.ndarray, target_flat: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target_flat: np.ndarray,
     ) -> None:
         rng = np.random.default_rng(0)
         random_mosaic = palette[rng.permutation(N)]
         sa_mosaic = solve_annealing(
-            palette, target_flat,
+            palette,
+            target_flat,
             color_space="rgb",
             iterations=50_000,
             img_width=W,
@@ -216,9 +245,12 @@ class TestAnnealing:
 
 # -- Dithering ---------------------------------------------------------
 
+
 class TestDithering:
     def test_preserves_palette(
-        self, palette: np.ndarray, target: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target: np.ndarray,
     ) -> None:
         mosaic_flat = solve_hungarian(palette, target.reshape(-1, 3), "rgb")
         mosaic = mosaic_flat.reshape(H, W, 3)
@@ -228,7 +260,9 @@ class TestDithering:
         assert dithered_set.issubset(palette_set)
 
     def test_output_shape(
-        self, palette: np.ndarray, target: np.ndarray,
+        self,
+        palette: np.ndarray,
+        target: np.ndarray,
     ) -> None:
         mosaic = palette.reshape(H, W, 3)
         dithered = apply_dithering(mosaic, target)
@@ -237,6 +271,7 @@ class TestDithering:
 
 
 # -- Image I/O ---------------------------------------------------------
+
 
 class TestImageIO:
     def test_load_preserves_aspect(self, tmp_image: Path) -> None:
